@@ -2,7 +2,7 @@
 A very simple CW (Morse code) beacon implemented on an AVR microcontroller (attiny, atmega)
 
 This is a very simple toy-project made as an alternative to the LED blinker (aka tha "hello world" of Arduino). 
-The project was initially made for the Digispark Tiny board (http://digistump.com/products/1) which runs on the attiny85 mcu, but will happily run on an normal Arduino board if you just change the LED port.
+The project was initially made for the Digispark Tiny board [Link](http://digistump.com/products/1) which runs on the attiny85 mcu, but will happily run on an normal Arduino board if you just change the LED port.
 
 At the moment the only thing it does is to turn on/off the on-board LED but by changing the port you can use it to switch on/off a CW transmitter (extra circuit may be required)
 
