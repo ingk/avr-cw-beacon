@@ -3,22 +3,22 @@
 // A simple CW Blinker (aka LED Beacon)
 // by SV1DJG (c.2016)
 //
-// This is a ultra simple blinker in CW for the 
+// This is a ultra simple blinker in CW for the
 // digispark mini board (attiny85).
 // change the led port if using a different
 // board (e.g. Arduino)
 //
-// Just set your message into the msg array and you 
+// Just set your message into the msg array and you
 // are ready to go.Make sure to use ONLY the set
 // of the supported characters.
-// the supported set of characters is capital 
+// the supported set of characters is capital
 // letters,numbers and a few symbols.
 //
-// You can also modify the transmission speed by 
+// You can also modify the transmission speed by
 // changing the speedWPM variable.
 //
 // HAVE FUN!!
-// 
+//
 // This code is provided as-is and may contain bugs!
 //
 // (codesize:1132 bytes + message length)
@@ -42,12 +42,10 @@
 
 #include <avr/pgmspace.h>
 
-
-
 // this is the port where the LED is connected (on digispark this is pin 1)
 #define ledPort 1
 
-// this defines the keying level and provides a quick way to change the keying method. 
+// this defines the keying level and provides a quick way to change the keying method.
 // when we use a LED we need HIGH to turn the LED on and LOW to turn the LED off
 // but if we select to connect an external switching hardware , this may need to be reversed
 #define MORSE_KEY_DOWN  HIGH
@@ -58,8 +56,6 @@
 
 // transmission speed (in words per minute)
 #define speedWPM 12
-
-
 
 // element duration is according to Farnsworth Technique
 // see : http://www.arrl.org/files/file/Technology/x9004008.pdf
@@ -89,8 +85,8 @@ char const msg[] = "TEST DE SV1DJG";
 // for example, A is DOT-DASH which is translated to 10.
 // B is DASH-DOT-DOT-DOT which is translated to 0111 etc.
 // these are encoded as binary values and paired with their length
-// for example 
-//    A -> 2,B10 
+// for example
+//    A -> 2,B10
 //    B -> 4,B0111
 // etc
 //
@@ -98,7 +94,7 @@ char const msg[] = "TEST DE SV1DJG";
 // (so we save space in the symbol table)
 //
 byte const letters[] PROGMEM =
-{ 
+{
   2,B10,   // A
   4,B0111, // B
   4,B0101, // C
@@ -128,7 +124,7 @@ byte const letters[] PROGMEM =
 };
 
 byte const numbers[] PROGMEM =
-{ 
+{
   B00000, // 0
   B10000, // 1
   B11000, // 2
@@ -141,9 +137,8 @@ byte const numbers[] PROGMEM =
   B00001, // 9
 };
 
-
 byte const symbols[] PROGMEM =
-{ 
+{
   6,B101010,  // Full-stop (period)
   6,B001100,  // Comma
   6,B110011,  // Question mark (query)
@@ -155,7 +150,7 @@ byte const symbols[] PROGMEM =
 void sendSymbol(boolean sendDot)
 {
   digitalWrite(ledPort, MORSE_KEY_DOWN);
-  delay(sendDot ? dotDuration : dashDuration); 
+  delay(sendDot ? dotDuration : dashDuration);
   digitalWrite(ledPort, MORSE_KEY_UP);
 }
 
@@ -164,7 +159,7 @@ void sendCharacter(char c)
 {
   byte numberOfBits = 0;
   byte elementCode  = 0;
-  
+
   if (c >= 'A' && c <='Z')
   {
     int elementIndex = (int)(c-'A');
@@ -181,7 +176,7 @@ void sendCharacter(char c)
   {
     // adjust delay because we have already "waited" for a character separation duration
     // NOTE:this delay will not be 100% accurate if the first character in the message is SPACE
-    delay(interWordDuration-interCharDuration); 
+    delay(interWordDuration-interCharDuration);
   }
   else
   {
@@ -192,31 +187,28 @@ void sendCharacter(char c)
     else if (c == '?') elementIndex = 2;
     else if (c == '/') elementIndex = 3;
     else if (c == '=') elementIndex = 4;
-   
+
     if (elementIndex != -1)
     {
       numberOfBits = pgm_read_byte(&symbols[elementIndex * 2]);
       elementCode  = pgm_read_byte(&symbols[elementIndex * 2 + 1]);
     }
   }
-  
-  
+
   if (numberOfBits > 0)
   {
     byte mask = 0x01 << (numberOfBits - 1);
-    
-    while (numberOfBits > 0 )
+
+    while (numberOfBits > 0)
     {
-      
       sendSymbol((elementCode & mask) == mask);
       delay(interSymbolDuration);
       mask = mask >> 1;
       --numberOfBits;
     }
-     // adjust delay because we have already "waited" for a dot duration
-     delay(interCharDuration - interSymbolDuration);
-   }  
-   
+    // adjust delay because we have already "waited" for a dot duration
+    delay(interCharDuration - interSymbolDuration);
+  }
 }
 
 // transmits an ASCII message in Morse Code
@@ -224,22 +216,19 @@ void sendMessage(const char* msg)
 {
   while (*msg)
     sendCharacter(*msg++);
- 
 }
 
-
-void setup() 
-{                
+void setup()
+{
   // initialize the digital pin as an output.
-  pinMode(ledPort, OUTPUT); 
+  pinMode(ledPort, OUTPUT);
 }
 
 // transmits a message over and over again forever:
-void loop() 
+void loop()
 {
-  // transmit message... 
+  // transmit message...
   sendMessage(msg);
   // wait and repeat
-  delay(repeatDelayMs);               
+  delay(repeatDelayMs);
 }
-
